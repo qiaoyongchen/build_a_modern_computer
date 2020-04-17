@@ -28,4 +28,27 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+
+    // address[0xxxxxxxxxxxxxx] 是内存
+    // address[10xxxxxxxxxxxxx] 是屏幕
+    // address[11xxxxxxxxxxxxx] 是键盘
+    
+    // 一分四
+    DMux4Way(in=load, sel=address[13..14], a=flaga, b=flagb, c=flagc, d=flagd);
+    
+    // flaga=1 为 00, flagb=1 为 01
+    // 如果为true 则 代表 0xxxxxxxxxxxxx 是内存
+    Or(a=flaga, b=flagb, out=ifm);
+
+    // 如果是加载内存则把8K地址处的16位内存载入
+    RAM16K(in=in, load=ifm, address=address[0..13], out=outm);
+
+    // 读取键盘，默认实现了好像
+    Keyboard(out=outk);
+
+    // 在屏幕内存出写入，也是默认实现，硬件自动进行显示, 8k 16位内存空间
+    Screen(in=in, load=flagc, address=address[0..12], out=outs);
+
+    // 四合一
+    Mux4Way16(a=outm, b=outm, c=outs, d=outk, sel=address[13..14], out=out);
 }
