@@ -40,4 +40,61 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+    // 0vvv vvvv vvvv vvvv 为A指令
+    // 1111 accc ccdd djjj 为C指令
+    Not(in=instruction[15], out=isA);
+    Not(in=isA, out=isC);
+
+    // c指令格式 1111 accc ccdd djjj 中的三个d从右往左分别表示为
+    // 把数据输出到 : M内存 输出到D寄存器 输出到A寄存器
+
+    // C指令并且指定输出到A寄存器
+    And(a = isC, b = instruction[5], out = isLoadAluOut);
+    // 制定输出到A寄存器就把ALU输出到A寄存器, 否则把当前C命令的地址导入到A寄存器
+    Mux16(a = instruction, b = outALU, sel = isLoadAluOut, out = inAR);
+
+    // 如果为A指令或指令指定输出到A寄存器 则将AR的load置为1
+    Or(a = isA, b = instruction[5], out = isLoadAR); 
+    // A寄存器载入值，并保存地址
+    ARegister(in = inAR, load = isLoadAR, out = outAR, out[0..14] = addressM);
+    
+    // 根据指令中的a位域判断将 A寄存器的输出 或者 inM 输入到ALU
+    Mux16(a = outAR, b = inM, sel = instruction[12], out = outAM);
+
+    // 如果是C指令并且规定写入到M内存
+    And(a = isC, b = instruction[3], out = writeM);
+
+    // 如果是C指令并且规定写入到D寄存器
+    And(a = instruction[4], b = isC, out = isLoadDR);
+    DRegister(in = outALU, load = isLoadDR, out = outDR);
+
+    And(a = isC, b = instruction[6], out = no);
+    And(a = isC, b = instruction[7], out = f);
+    And(a = isC, b = instruction[8], out = ny);
+    And(a = isC, b = instruction[9], out = zy);
+    And(a = isC, b = instruction[10], out = nx);
+    And(a = isC, b = instruction[11], out = zx);
+
+    ALU(x = outDR, y = outAM, zx = zx, nx = nx, zy = zy, ny = ny, f = f, no = no, out = outALU, out = outM, zr=zr, ng=ng);
+
+    // 根据j位域和ALU的zr、ng位来判断跳转
+    And(a = isC, b = instruction[0], out = isGT);
+    And(a = isC, b = instruction[1], out = isEQ);
+    And(a = isC, b = instruction[2], out = isLT);
+
+    And(a = ng, b = isLT, out = isLtJump);
+    And(a = zr, b = isEQ, out = isEqJump);
+
+    // 输出是否大于0
+    Not(in = ng, out = notNg);
+    Not(in = zr, out = notZr);
+    And(a = notNg, b = notZr, out = isOutGt);
+
+    And(a = isOutGt, b = isGT, out = isGtJump);
+
+    Or(a = isLtJump, b = isEqJump, out = isJump);
+    Or(a = isJump, b = isGtJump, out = jump);
+
+    PC(in = outAR, load = jump, inc = true, reset = reset, out[0..14] = pc);
 }
