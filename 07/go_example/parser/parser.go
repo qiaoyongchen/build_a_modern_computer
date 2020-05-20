@@ -25,7 +25,7 @@ func NewParser(inputFile string, commands []string) *Parser {
 		os.Exit(-1)
 	}
 	p.file = file
-
+	p.CurrentCommandIndex = -1
 	return p
 }
 

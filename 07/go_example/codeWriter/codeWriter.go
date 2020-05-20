@@ -8,21 +8,21 @@ import (
 )
 
 const (
-	SEG_ARGMENT = "argment"
-	SEG_LOCAL   = "local"
-	SEG_STATIC  = "static"
-	SEG_CONTANT = "contant"
-	SEG_THIS    = "this"
-	SEG_THAT    = "that"
-	SEG_POINTER = "pointer"
-	SEG_TEMP    = "temp"
+	SEG_ARGUMENT = "argument"
+	SEG_LOCAL    = "local"
+	SEG_STATIC   = "static"
+	SEG_CONSTANT = "constant"
+	SEG_THIS     = "this"
+	SEG_THAT     = "that"
+	SEG_POINTER  = "pointer"
+	SEG_TEMP     = "temp"
 )
 
 var segmentAllow = []string{
-	SEG_ARGMENT,
+	SEG_ARGUMENT,
 	SEG_LOCAL,
 	SEG_STATIC,
-	SEG_CONTANT,
+	SEG_CONSTANT,
 	SEG_THIS,
 	SEG_THAT,
 	SEG_POINTER,
@@ -49,7 +49,7 @@ type CodeWriter struct {
 
 // NewCodeWriter 构造器
 func NewCodeWriter(outputFileNmae string) *CodeWriter {
-	f, ferror := os.OpenFile(outputFileNmae, os.O_APPEND|os.O_CREATE, 0777)
+	f, ferror := os.OpenFile(outputFileNmae, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
 	if ferror != nil {
 		println("error: cw2")
 		os.Exit(-1)
@@ -143,6 +143,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 
 	if !isAllowSegment(segment) {
 		println("error: cw1")
+		println("error segment: " + segment)
 		os.Exit(-1)
 	}
 
@@ -160,7 +161,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 	// RAM[16384-24575] -> ---- -> 内存映像IO
 
 	switch segment {
-	case SEG_CONTANT: //contant - 包含所有常数的伪段
+	case SEG_CONSTANT: //contant - 包含所有常数的伪段
 		// 常数只有push没有pop
 		switch command {
 		case parser.C_PUSH:
@@ -169,8 +170,13 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@SP\r\n"                          // A 寄存器存入sp地址
 			commandStr += "A=M\r\n"                          // A 寄存器存入栈指针
 			commandStr += "M=D\r\n"                          // 栈指针处存入 D寄存器内容(即常数)
-			commandStr += "@sp\r\n"                          // A 寄存器存入sp地址
+			commandStr += "@SP\r\n"                          // A 寄存器存入sp地址
 			commandStr += "M=M+1\r\n"                        // sp 内容(即栈指针)加1
+
+			println("--constant start:--")
+			println("constant" + segment + strconv.Itoa(index))
+			println("--constant end:--")
+			println("")
 		case parser.C_POP:
 			println("error: cw3")
 			os.Exit(-1)
@@ -182,13 +188,13 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 		case parser.C_PUSH:
 			commandStr += "@" + staticName + "\r\n" // A 寄存器存入常量地址
 			commandStr += "D=M\r\n"                 // D 寄存器存入常量内容
-			commandStr += "@sp\r\n"                 // A 寄存器存入sp地址
+			commandStr += "@SP\r\n"                 // A 寄存器存入sp地址
 			commandStr += "A=M\r\n"                 // A 寄存器存入栈地址
 			commandStr += "M=D\r\n"                 // 栈地址存入常量内容
-			commandStr += "@sp\r\n"                 // A 寄存器存入sp地址
+			commandStr += "@SP\r\n"                 // A 寄存器存入sp地址
 			commandStr += "M=M+1\r\n"               // 栈地址加1
 		case parser.C_POP:
-			commandStr += "@sp\r\n" //
+			commandStr += "@SP\r\n" //
 			commandStr += "AM=M-1"  //
 			commandStr += "D=M\r\n" //
 			commandStr += "@" + staticName + "\r\n"
@@ -206,13 +212,13 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 		case parser.C_PUSH:
 			commandStr += "@" + segment + "\r\n" // A 寄存器存入segment地址
 			commandStr += "D=M\r\n"              // D 寄存器存入segment内容
-			commandStr += "@sp\r\n"              // A 寄存器存入sp地址
+			commandStr += "@SP\r\n"              // A 寄存器存入sp地址
 			commandStr += "A=M\r\n"              // A 寄存器存入栈地址
 			commandStr += "M=D\r\n"              // 栈地址存入常量内容
-			commandStr += "@sp\r\n"              // A 寄存器存入sp地址
+			commandStr += "@SP\r\n"              // A 寄存器存入sp地址
 			commandStr += "M=M+1\r\n"            // 栈地址加1
 		case parser.C_POP:
-			commandStr += "@sp\r\n"              //
+			commandStr += "@SP\r\n"              //
 			commandStr += "AM=M-1"               //
 			commandStr += "D=M\r\n"              //
 			commandStr += "@" + segment + "\r\n" //
@@ -227,10 +233,10 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
 			commandStr += "A=D+A"                            //
 			commandStr += "D=M\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "A=M\r\n"                          //
 			commandStr += "M=D\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "M=M+1\r\n"                        //
 		case parser.C_POP:
 			commandStr += "@R5\r\n"                          //
@@ -239,7 +245,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "D=D+A" + "\r\n"                   //
 			commandStr += "@R13\r\n"                         //
 			commandStr += "M=D\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "AM=M-1\r\n"                       //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@R13\r\n"                         //
@@ -254,10 +260,10 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
 			commandStr += "A=D+A"                            //
 			commandStr += "D=M\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "A=M\r\n"                          //
 			commandStr += "M=D\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "M=M+1\r\n"                        //
 		case parser.C_POP:
 			commandStr += "@LCL\r\n"                         //
@@ -266,14 +272,14 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "D=D+A" + "\r\n"                   //
 			commandStr += "@R13\r\n"                         //
 			commandStr += "M=D\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "AM=M-1\r\n"                       //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@R13\r\n"                         //
 			commandStr += "A=M\r\n"                          //
 			commandStr += "M=D\r\n"                          //
 		}
-	case SEG_ARGMENT: //argment - 存储函数的参数
+	case SEG_ARGUMENT: //argment - 存储函数的参数
 		switch command {
 		case parser.C_PUSH:
 			commandStr += "@ARG\r\n"                         //
@@ -281,10 +287,10 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
 			commandStr += "A=D+A"                            //
 			commandStr += "D=M\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "A=M\r\n"                          //
 			commandStr += "M=D\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "M=M+1\r\n"                        //
 		case parser.C_POP:
 			commandStr += "@ARG\r\n"                         //
@@ -293,7 +299,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "D=D+A" + "\r\n"                   //
 			commandStr += "@R13\r\n"                         //
 			commandStr += "M=D\r\n"                          //
-			commandStr += "@sp\r\n"                          //
+			commandStr += "@SP\r\n"                          //
 			commandStr += "AM=M-1\r\n"                       //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@R13\r\n"                         //
@@ -302,7 +308,11 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 		}
 	}
 
-	cw.outputFile.Write([]byte(commandStr))
+	_, e := cw.outputFile.Write([]byte(commandStr))
+	if e != nil {
+		println(e.Error())
+		os.Exit(-1)
+	}
 }
 
 // Close 关闭输出

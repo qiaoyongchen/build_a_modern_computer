@@ -30,10 +30,7 @@ func main() {
 			continue
 		}
 
-		// 打印每个文件的
-		fmt.Println("filename: " + filePath)
 		fmt.Println(fileVMCommands)
-		fmt.Println()
 
 		p := parser.NewParser(filePath, fileVMCommands)
 		cw.SetFileName(fileName)
@@ -44,6 +41,8 @@ func main() {
 			}
 
 			p.Advance()
+
+			println("command:" + p.CurrentCommand)
 
 			if p.CommandType() == parser.C_ARITHMETIC {
 				cw.WriteArithmetic(p.CurrentCommand)
