@@ -84,7 +84,8 @@ func (cw *CodeWriter) WriteArithmetic(command string) {
 	commandStrPopOnce += "@SP\r\n"    //A寄存器加载statck地址
 	commandStrPopOnce += "AM=M-1\r\n" //sp减一
 
-	CommandEqORgtORltStr := "@SP\r\n"          //A寄存器加载statck地址
+	CommandEqORgtORltStr := ""
+	CommandEqORgtORltStr += "@SP\r\n"          //A寄存器加载statck地址
 	CommandEqORgtORltStr += "AM=M-1\r\n"       //sp减一
 	CommandEqORgtORltStr += "D=M\r\n"          //D寄存器指向减一后的寄存器
 	CommandEqORgtORltStr += "A=A-1\r\n"        //A寄存器再减一，指向原始sp减二处,此时M指向sp-2的值,D位于sp-1处
@@ -115,21 +116,25 @@ func (cw *CodeWriter) WriteArithmetic(command string) {
 		commandStr = commandStrPopTwice + "M=M-D\r\n" //计算结果并把结果放在sp-2处，类似于弹出两个栈，计算结果后再压入栈
 	case "neg":
 		commandStr = commandStrPopOnce + "M=-M\r\n" //sp-1处原地计算，类似于先弹出，再计算，再压入栈
+		commandStr += "@SP\r\n"                     //sp 指针再次指向未分配的栈顶
+		commandStr += "M=M+1\r\n"
 	case "eq":
 		eqORgtORltIndex++
-		commandStr = fmt.Sprintf(CommandEqORgtORltStr, eqORgtORltIndex, "JEQ", eqORgtORltIndex, eqORgtORltIndex)
+		commandStr = fmt.Sprintf(CommandEqORgtORltStr, eqORgtORltIndex, "JEQ", eqORgtORltIndex, eqORgtORltIndex, eqORgtORltIndex)
 	case "gt":
 		eqORgtORltIndex++
-		commandStr = fmt.Sprintf(CommandEqORgtORltStr, eqORgtORltIndex, "JGT", eqORgtORltIndex, eqORgtORltIndex)
+		commandStr = fmt.Sprintf(CommandEqORgtORltStr, eqORgtORltIndex, "JGT", eqORgtORltIndex, eqORgtORltIndex, eqORgtORltIndex)
 	case "lt":
 		eqORgtORltIndex++
-		commandStr = fmt.Sprintf(CommandEqORgtORltStr, eqORgtORltIndex, "JLT", eqORgtORltIndex, eqORgtORltIndex)
+		commandStr = fmt.Sprintf(CommandEqORgtORltStr, eqORgtORltIndex, "JLT", eqORgtORltIndex, eqORgtORltIndex, eqORgtORltIndex)
 	case "and":
 		commandStr = commandStrPopTwice + "M=M&D\r\n"
 	case "or":
 		commandStr = commandStrPopTwice + "M=M|D\r\n"
 	case "not":
 		commandStr = commandStrPopOnce + "M=!M\r\n"
+		commandStr += "@SP\r\n" //sp 指针再次指向未分配的栈顶
+		commandStr += "M=M+1\r\n"
 	}
 
 	cw.outputFile.Write([]byte(commandStr))
