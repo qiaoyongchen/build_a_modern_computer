@@ -230,13 +230,67 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "A=M"                  //
 			commandStr += "M=D\r\n"              //
 		}
+	case SEG_THIS: //this
+		switch command {
+		case parser.C_PUSH:
+			commandStr += "@THIS\r\n"                        //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
+			commandStr += "A=D+A\r\n"                        //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@SP\r\n"                          //
+			commandStr += "A=M\r\n"                          //
+			commandStr += "M=D\r\n"                          //
+			commandStr += "@SP\r\n"                          //
+			commandStr += "M=M+1\r\n"                        //
+		case parser.C_POP:
+			commandStr += "@THIS\r\n"                        //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
+			commandStr += "D=D+A\r\n"                        //
+			commandStr += "@R13\r\n"                         //
+			commandStr += "M=D\r\n"                          //
+			commandStr += "@SP\r\n"                          //
+			commandStr += "AM=M-1\r\n"                       //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@R13\r\n"                         //
+			commandStr += "A=M\r\n"                          //
+			commandStr += "M=D\r\n"                          //
+		}
+	case SEG_THAT: //that
+		switch command {
+		case parser.C_PUSH:
+			commandStr += "@THAT\r\n"                        //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
+			commandStr += "A=D+A\r\n"                        //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@SP\r\n"                          //
+			commandStr += "A=M\r\n"                          //
+			commandStr += "M=D\r\n"                          //
+			commandStr += "@SP\r\n"                          //
+			commandStr += "M=M+1\r\n"                        //
+		case parser.C_POP:
+			commandStr += "@THAT\r\n"                        //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
+			commandStr += "D=D+A\r\n"                        //
+			commandStr += "@R13\r\n"                         //
+			commandStr += "M=D\r\n"                          //
+			commandStr += "@SP\r\n"                          //
+			commandStr += "AM=M-1\r\n"                       //
+			commandStr += "D=M\r\n"                          //
+			commandStr += "@R13\r\n"                         //
+			commandStr += "A=M\r\n"                          //
+			commandStr += "M=D\r\n"                          //
+		}
 	case SEG_TEMP: //temp - 固定的段,由8个规定的内存单元组成,用来保存临时变量
 		switch command {
 		case parser.C_PUSH:
 			commandStr += "@R5\r\n"                          //
 			commandStr += "D=A\r\n"                          //
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
-			commandStr += "A=D+A"                            //
+			commandStr += "A=D+A\r\n"                        //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@SP\r\n"                          //
 			commandStr += "A=M\r\n"                          //
@@ -247,7 +301,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@R5\r\n"                          //
 			commandStr += "D=A\r\n"                          //
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
-			commandStr += "D=D+A" + "\r\n"                   //
+			commandStr += "D=D+A\r\n"                        //
 			commandStr += "@R13\r\n"                         //
 			commandStr += "M=D\r\n"                          //
 			commandStr += "@SP\r\n"                          //
@@ -263,7 +317,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@LCL\r\n"                         //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
-			commandStr += "A=D+A"                            //
+			commandStr += "A=D+A\r\n"                        //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@SP\r\n"                          //
 			commandStr += "A=M\r\n"                          //
@@ -274,7 +328,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@LCL\r\n"                         //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
-			commandStr += "D=D+A" + "\r\n"                   //
+			commandStr += "D=D+A\r\n"                        //
 			commandStr += "@R13\r\n"                         //
 			commandStr += "M=D\r\n"                          //
 			commandStr += "@SP\r\n"                          //
@@ -290,7 +344,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@ARG\r\n"                         //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
-			commandStr += "A=D+A"                            //
+			commandStr += "A=D+A\r\n"                        //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@SP\r\n"                          //
 			commandStr += "A=M\r\n"                          //
@@ -301,7 +355,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@ARG\r\n"                         //
 			commandStr += "D=M\r\n"                          //
 			commandStr += "@" + strconv.Itoa(index) + "\r\n" //
-			commandStr += "D=D+A" + "\r\n"                   //
+			commandStr += "D=D+A\r\n"                        //
 			commandStr += "@R13\r\n"                         //
 			commandStr += "M=D\r\n"                          //
 			commandStr += "@SP\r\n"                          //
