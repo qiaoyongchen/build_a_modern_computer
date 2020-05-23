@@ -199,9 +199,9 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "@SP\r\n"                 // A 寄存器存入sp地址
 			commandStr += "M=M+1\r\n"               // 栈地址加1
 		case parser.C_POP:
-			commandStr += "@SP\r\n" //
-			commandStr += "AM=M-1"  //
-			commandStr += "D=M\r\n" //
+			commandStr += "@SP\r\n"    //
+			commandStr += "AM=M-1\r\n" //
+			commandStr += "D=M\r\n"    //
 			commandStr += "@" + staticName + "\r\n"
 			commandStr += "M=D\r\n"
 		}
@@ -224,10 +224,9 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "M=M+1\r\n"            // 栈地址加1
 		case parser.C_POP:
 			commandStr += "@SP\r\n"              //
-			commandStr += "AM=M-1"               //
+			commandStr += "AM=M-1\r\n"           //
 			commandStr += "D=M\r\n"              //
 			commandStr += "@" + segment + "\r\n" //
-			commandStr += "A=M"                  //
 			commandStr += "M=D\r\n"              //
 		}
 	case SEG_THIS: //this
