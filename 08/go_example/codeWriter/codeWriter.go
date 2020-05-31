@@ -412,9 +412,58 @@ func (cw *CodeWriter) WriteIf(label string) {
 	cw.outputFile.Write([]byte(commandStr))
 }
 
+var callIndex = -1
+
 // WriteCall 编写执行 call 命令的汇编代码
 func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
-	return
+
+	var returnAddressFunc = func() string {
+		callIndex++
+		return functionName + "RETURN_ADDRESS" + strconv.Itoa(callIndex)
+	}
+
+	commandStr := ""
+	// 首先把执行完的返回地址压入栈
+	commandStr += "@" + returnAddressFunc() + "\r\n"
+	commandStr += "D=A\r\n"
+	commandStr += "@SP\r\n'"
+	commandStr += "A=M\r\n"
+	commandStr += "M=D\r\n"
+	commandStr += "@SP\r\n"
+	commandStr += "M=M+1\r\n"
+
+	// 再把四个寄存器压入栈
+	bePushedPointers := []string{"LCL", "ARG", "THIS", "THAT"}
+	for _, v := range bePushedPointers {
+		commandStr += "@" + v + "\r\n"
+		commandStr += "D=M\r\n"
+		commandStr += "@SP\r\n"
+		commandStr += "A=M\r\n"
+		commandStr += "M=D\r\n"
+		commandStr += "@SP\r\n"
+		commandStr += "M=M+1\r\n"
+	}
+
+	// 查找栈，跳过前面设置的参数和寄存器和返回地址 即 参数数量 + 4 + 1
+	// 那么查找到堆栈中的地址就是参数值在堆栈中的起始处(call 之前会push数据)
+	// 调用function并执行
+	commandStr += "@" + strconv.Itoa(numArgs) + "\r\n"
+	commandStr += "D=A\r\n"
+	commandStr += "@5\r\n"
+	commandStr += "D=A+D\r\n"
+	commandStr += "@SP\r\n"
+	commandStr += "D=M-D\r\n"
+	commandStr += "@ARG\r\n"
+	commandStr += "M=D\r\n"
+	commandStr += "@SP\r\n"
+	commandStr += "D=M\r\n"
+	commandStr += "@LCL\r\n"
+	commandStr += "M=D\r\n"
+	commandStr += "@" + functionName + "\r\n"
+	commandStr += "0;JMP\r\n"
+	commandStr += "(" + returnAddressFunc() + ")\r\n"
+
+	cw.outputFile.Write([]byte(commandStr))
 }
 
 // WriteReturn 编写执行 return 命令的汇编代码
