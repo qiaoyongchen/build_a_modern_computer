@@ -468,12 +468,57 @@ func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 
 // WriteReturn 编写执行 return 命令的汇编代码
 func (cw *CodeWriter) WriteReturn() {
-	return
+	commandStr := ""
+	commandStr += "@LCL\r\n"
+	commandStr += "D=M\r\n"
+	commandStr += "@R13\r\n"
+	commandStr += "M=D\r\n" // 以上 LCL 保存在 R13中
+
+	commandStr += "@5\r\n"
+	commandStr += "A=D-A\r\n"
+	commandStr += "D=M\r\n"
+	commandStr += "@R14\r\n"
+	commandStr += "M=D\r\n" // 以上 LCL - 5 取得的返回地址保存在 R14 中
+
+	commandStr += "@SP\r\n"
+	commandStr += "AM=M-1\r\n"
+	commandStr += "D=M\r\n" // sp减一 获取最近塞入的值 及返回值 放入D寄存器中
+
+	commandStr += "@ARG\r\n"
+	commandStr += "A=M\r\n"
+	commandStr += "M=D\r\n" // 当前ARG在堆栈中的位置放入返回值 待会ARG就会被改写成调用之前的ARG了，这个位置就没用了
+	commandStr += "@ARG\r\n"
+	commandStr += "D=M+1\r\n"
+	commandStr += "@SP\r\n"
+	commandStr += "M=D\r\n" // 堆栈指针加1指向新的位置
+
+	// 恢复之前保存的四个寄存器里面的值 ps:和保存顺序相反
+	for _, v := range []string{"THAT", "THIS", "ARG", "LCL"} {
+		commandStr += "@R13\r\n"
+		commandStr += "D=M-1\r\n"
+		commandStr += "AM=D\r\n"
+		commandStr += "D=M\r\n"
+		commandStr += "@" + v + "\r\n"
+		commandStr += "M=D\r\n"
+	}
+
+	commandStr += "@R14\r\n"
+	commandStr += "A=M\r\n"
+	commandStr += "0;JMP\r\n" // 以上 跳转到之前保存的指令地址 (调用之前的下一条指令)
+
+	cw.outputFile.Write([]byte(commandStr))
 }
 
 // WriteFunction 编写执行 function 命令的汇编代码
 func (cw *CodeWriter) WriteFunction(functionName string, numLocals int) {
-	return
+	commandStr := ""
+	commandStr += "(" + functionName + ")\r\n"
+	cw.outputFile.Write([]byte(commandStr))
+
+	for numLocals > 0 {
+		numLocals--
+		cw.WritePushPop(parser.C_PUSH, SEG_CONSTANT, 0)
+	}
 }
 
 // Close 关闭输出
