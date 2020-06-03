@@ -426,7 +426,7 @@ func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 	// 首先把执行完的返回地址压入栈
 	commandStr += "@" + returnAddressFunc() + "\r\n"
 	commandStr += "D=A\r\n"
-	commandStr += "@SP\r\n'"
+	commandStr += "@SP\r\n"
 	commandStr += "A=M\r\n"
 	commandStr += "M=D\r\n"
 	commandStr += "@SP\r\n"

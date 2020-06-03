@@ -17,7 +17,11 @@ func main() {
 	fileOrPath := os.Args[1]
 	filePaths := getFilePaths(fileOrPath)
 	cw := codeWriter.NewCodeWriter("main.asm")
-	cw.WriteInit()
+	//cw.WriteInit()
+
+	for _, v := range filePaths {
+		println(v)
+	}
 
 	for _, filePath := range filePaths {
 		fileName := getNameFromFile(filePath)
