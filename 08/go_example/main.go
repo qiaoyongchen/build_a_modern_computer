@@ -17,15 +17,21 @@ func main() {
 	fileOrPath := os.Args[1]
 	filePaths := getFilePaths(fileOrPath)
 	cw := codeWriter.NewCodeWriter("main.asm")
-	//cw.WriteInit()
 
 	for _, v := range filePaths {
-		println(v)
+		if v == "Sys.vm" {
+			cw.WriteInit()
+		}
 	}
+
+	println()
+	println("files --------------")
+	fmt.Println(filePaths)
+	println("files---------------")
+	println()
 
 	for _, filePath := range filePaths {
 		fileName := getNameFromFile(filePath)
-
 		if !isVMFile(filePath) {
 			continue
 		}

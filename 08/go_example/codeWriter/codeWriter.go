@@ -179,7 +179,7 @@ func (cw *CodeWriter) WritePushPop(command int, segment string, index int) {
 			commandStr += "M=M+1\r\n"                        // sp 内容(即栈指针)加1
 
 			println("--constant start:--")
-			println("constant" + segment + strconv.Itoa(index))
+			println("constant: " + segment + strconv.Itoa(index))
 			println("--constant end:--")
 			println("")
 		case parser.C_POP:
@@ -389,7 +389,7 @@ func (cw *CodeWriter) WriteInit() {
 
 // WriteLabel 编写执行 label 命令的汇编代码
 func (cw *CodeWriter) WriteLabel(label string) {
-	commandStr := "(" + label + ")"
+	commandStr := "(" + label + ")\r\n"
 	cw.outputFile.Write([]byte(commandStr))
 }
 
@@ -416,9 +416,9 @@ var callIndex = -1
 
 // WriteCall 编写执行 call 命令的汇编代码
 func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
+	callIndex++
 
 	var returnAddressFunc = func() string {
-		callIndex++
 		return functionName + "RETURN_ADDRESS" + strconv.Itoa(callIndex)
 	}
 
