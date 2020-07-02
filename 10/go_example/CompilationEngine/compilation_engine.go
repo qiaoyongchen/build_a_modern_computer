@@ -1,24 +1,64 @@
 package CompilationEngine
 
 import (
+	"fmt"
+	"go_example/JackTokenizer"
 	jt "go_example/JackTokenizer"
 	"os"
 )
 
 // CompilationEngine ...
 type CompilationEngine struct {
-	jt jt.JackTokenizer
+	jt *jt.JackTokenizer
 	o  *os.File
 }
 
 // NewCompilationEngine ...
-func NewCompilationEngine(jt jt.JackTokenizer, fo *os.File) *CompilationEngine {
+func NewCompilationEngine(jt *jt.JackTokenizer, fo *os.File) *CompilationEngine {
 	return &CompilationEngine{jt, fo}
 }
 
 // CompileClass 编译整个类
 func (p *CompilationEngine) CompileClass() {
+	outputstring := ""
+	p.jt.Advance()
+	if !p.jt.HasMoreTokens() {
+		panic("c_001")
+	}
+	tknType := p.jt.TokenType()
+	if tknType != JackTokenizer.TKN_KEYWORD {
+		panic("c_002")
+	}
+	smb := p.jt.Keyword()
+	if smb != JackTokenizer.KEY_CLASS {
+		panic("c_003")
+	}
+	outputstring += "<class>"
+	p.jt.Advance()
+	if !p.jt.HasMoreTokens() {
+		panic("c_004")
+	}
+	tknType2 := p.jt.TokenType()
+	if tknType2 != JackTokenizer.TKN_IDENTIFIER {
+		panic("c_005")
+	}
+	outputstring += fmt.Sprintf("<identifier>%s</identifier>", p.jt.Identifierr())
+	p.jt.Advance()
+	if !p.jt.HasMoreTokens() {
+		panic("c_006")
+	}
+	tknType3 := p.jt.TokenType()
+	if tknType3 != JackTokenizer.TKN_SYMBOL {
+		panic("c_007")
+	}
+	if p.jt.Symbol() != JackTokenizer.SYM_LEFT_PARENTHESIS {
+		panic("c_008")
+	}
+	outputstring += fmt.Sprintf("<symbol>%s</symbol>", p.jt.Symbol())
 
+	// TODO
+
+	outputstring += "</class>"
 }
 
 // CompileClassVarDec 编译类静态声明或字段声明

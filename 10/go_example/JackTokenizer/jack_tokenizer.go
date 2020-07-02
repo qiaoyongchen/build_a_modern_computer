@@ -5,37 +5,61 @@ import "os"
 type TknType uint8
 
 const (
-	KEYWORD      TknType = 1
-	SYMBOL       TknType = 2
-	IDENTIFIER   TknType = 3
-	INT_CONST    TknType = 4
-	STRING_CONST TknType = 5
+	TKN_KEYWORD      TknType = 1
+	TKN_SYMBOL       TknType = 2
+	TKN_IDENTIFIER   TknType = 3
+	TKN_INT_CONST    TknType = 4
+	TKN_STRING_CONST TknType = 5
 )
 
 type KeywordType string
 
 const (
-	CLASS       KeywordType = "CLASS"
-	METHOD      KeywordType = "METHOD"
-	INT         KeywordType = "INT"
-	FUNCTION    KeywordType = "FUNCTION"
-	BOOLEAN     KeywordType = "BOOLEAN"
-	CONSTRUCTOR KeywordType = "CONSTRUCTOR"
-	CHAR        KeywordType = "CHAR"
-	VOID        KeywordType = "VOID"
-	VAR         KeywordType = "VAR"
-	STATIC      KeywordType = "STATIC"
-	FIELD       KeywordType = "FIELD"
-	LET         KeywordType = "LET"
-	DO          KeywordType = "DO"
-	IF          KeywordType = "IF"
-	ELSE        KeywordType = "ELSE"
-	WHILE       KeywordType = "WHILE"
-	RETURN      KeywordType = "RETURN"
-	TRUE        KeywordType = "TRUE"
-	FALSE       KeywordType = "FALSE"
-	NULL        KeywordType = "NULL"
-	THIS        KeywordType = "THIS"
+	KEY_CLASS       KeywordType = "CLASS"
+	KEY_METHOD      KeywordType = "METHOD"
+	KEY_INT         KeywordType = "INT"
+	KEY_FUNCTION    KeywordType = "FUNCTION"
+	KEY_BOOLEAN     KeywordType = "BOOLEAN"
+	KEY_CONSTRUCTOR KeywordType = "CONSTRUCTOR"
+	KEY_CHAR        KeywordType = "CHAR"
+	KEY_VOID        KeywordType = "VOID"
+	KEY_VAR         KeywordType = "VAR"
+	KEY_STATIC      KeywordType = "STATIC"
+	KEY_FIELD       KeywordType = "FIELD"
+	KEY_LET         KeywordType = "LET"
+	KEY_DO          KeywordType = "DO"
+	KEY_IF          KeywordType = "IF"
+	KEY_ELSE        KeywordType = "ELSE"
+	KEY_WHILE       KeywordType = "WHILE"
+	KEY_RETURN      KeywordType = "RETURN"
+	KEY_TRUE        KeywordType = "TRUE"
+	KEY_FALSE       KeywordType = "FALSE"
+	KEY_NULL        KeywordType = "NULL"
+	KEY_THIS        KeywordType = "THIS"
+)
+
+type SymbolType string
+
+const (
+	SYM_LEFT_PARENTHESIS  = "{"
+	SYM_RIGHT_PARENTHESIS = "}"
+	SYM_LEFT_BRACES       = "("
+	SYM_RIGHT_BRACES      = ")"
+	SYM_LEFT_BRACKET      = "["
+	SYM_RIGHT_BRACKET     = "]"
+	SYM_DOT               = "."
+	SYM_COMMA             = ","
+	SYM_SEMICOLON         = ";"
+	SYM_PLUS              = "+"
+	SYM_MINUS             = "-"
+	SYM_MUL               = "*"
+	SYM_DIV               = "-"
+	SYM_COMBINE           = "&"
+	SYM_VERTICAL          = "|"
+	SYM_GT                = ">"
+	SYM_LT                = "<"
+	SYM_EQ                = "="
+	SYM_WAVE              = "~"
 )
 
 // JackTokenizer ...
