@@ -91,13 +91,54 @@ func (p *CompilationEngine) CompileClass() {
 }
 
 // CompileClassVarDec 编译类静态声明或字段声明
+// 编译VarDec时，肯定是别人取过后判断出是这个方法出来才转过来的
+// 所以一开始,咱就不p.jt.Advance()了，直接拿就行了
 func (p *CompilationEngine) CompileClassVarDec() {
-	// TODO
+	p.o.WriteString(fmt.Sprintf("<keyword>%s</keyword>", p.jt.Keyword()))
+
+	p.jt.Advance()
+	if !p.jt.HasMoreTokens() {
+		panic("c_013")
+	}
+	if p.jt.TokenType() != JackTokenizer.TKN_KEYWORD {
+		panic("c_014")
+	}
+	if p.jt.Keyword() != JackTokenizer.KEY_INT && p.jt.Keyword() != JackTokenizer.KEY_CHAR {
+		panic("c_015")
+	}
+	p.o.WriteString(fmt.Sprintf("<keyword>%s</keyword>", p.jt.Keyword()))
+
+	lastFlag := 1 // 1 代表 ',' 2 代表 varName
+	// 这段代码用来解析 声明 多个变量的情况
+	for {
+		p.jt.Advance()
+		if !p.jt.HasMoreTokens() {
+			panic("c_016")
+		}
+		switch p.jt.TokenType() {
+		case JackTokenizer.TKN_IDENTIFIER:
+			if lastFlag != 1 {
+				panic("c_017")
+			}
+			p.o.WriteString(fmt.Sprintf("<identifier>%s</identifier>", p.jt.Identifierr()))
+			lastFlag = 2
+		case JackTokenizer.TKN_SYMBOL:
+			p.o.WriteString(fmt.Sprintf("<symbol>%s</symbol>", p.jt.Symbol()))
+			switch p.jt.Symbol() {
+			case JackTokenizer.SYM_COMMA:
+				lastFlag = 1
+			case JackTokenizer.SYM_SEMICOLON:
+				return
+			}
+		default:
+			panic("c_018")
+		}
+	}
 }
 
 // CompileSubroutine 编译方法，函数或构造函数
 func (p *CompilationEngine) CompileSubroutine() {
-
+	// TODO
 }
 
 // CompileParameterList 编译参数列表(可能为空)不包含"(",")"
