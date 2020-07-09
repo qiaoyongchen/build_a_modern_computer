@@ -5,11 +5,11 @@ import "os"
 type TknType uint8
 
 const (
-	TKN_KEYWORD      TknType = 1
-	TKN_SYMBOL       TknType = 2
-	TKN_IDENTIFIER   TknType = 3
-	TKN_INT_CONST    TknType = 4
-	TKN_STRING_CONST TknType = 5
+	TKN_KEYWORD      TknType = 1 // jack语言关键字
+	TKN_SYMBOL       TknType = 2 // jack语言符号
+	TKN_IDENTIFIER   TknType = 3 // jack语言标识符
+	TKN_INT_CONST    TknType = 4 // 整数常量
+	TKN_STRING_CONST TknType = 5 // 字符串常量
 )
 
 type KeywordType string

@@ -76,6 +76,8 @@ func (p *CompilationEngine) CompileClass() {
 			default:
 				panic("c_011")
 			}
+
+			// 还要继续向下pick一个
 			p.jt.Advance()
 			tknType4 = p.jt.TokenType()
 		} else if tknType4 == JackTokenizer.TKN_SYMBOL && p.jt.Symbol() == JackTokenizer.SYM_RIGHT_PARENTHESIS {
@@ -138,17 +140,55 @@ func (p *CompilationEngine) CompileClassVarDec() {
 
 // CompileSubroutine 编译方法，函数或构造函数
 func (p *CompilationEngine) CompileSubroutine() {
-	// TODO
+	p.o.WriteString(fmt.Sprintf("<subroutineDec>"))
+	p.o.WriteString(fmt.Sprintf("<keyword>%s</keyword>", p.jt.Keyword()))
+
+	p.jt.Advance()
+	if p.jt.HasMoreTokens() {
+		panic("c_019")
+	}
+	if p.jt.TokenType() != JackTokenizer.TKN_IDENTIFIER {
+		panic("c_020")
+	}
+	p.o.WriteString(fmt.Sprintf("<identifier>%s</identifier>", p.jt.Identifierr()))
+
+	p.jt.Advance()
+	if p.jt.HasMoreTokens() {
+		panic("c_021")
+	}
+	if p.jt.TokenType() != JackTokenizer.TKN_SYMBOL {
+		panic("c_022")
+	}
+	if p.jt.Symbol() != JackTokenizer.SYM_LEFT_BRACES {
+		panic("c_023")
+	}
+	p.CompileParameterList()
+
+	p.jt.Advance()
+	if p.jt.HasMoreTokens() {
+		panic("c_024")
+	}
+	if p.jt.TokenType() != JackTokenizer.TKN_SYMBOL {
+		panic("c_025")
+	}
+	if p.jt.Symbol() != JackTokenizer.SYM_LEFT_PARENTHESIS {
+		panic("c_026")
+	}
+	p.o.WriteString(fmt.Sprintf("<subroutineBody>"))
+	p.CompileStatements()
+	p.o.WriteString(fmt.Sprintf("</subroutineBody>"))
+
+	p.o.WriteString(fmt.Sprintf("</subroutineDec>"))
 }
 
 // CompileParameterList 编译参数列表(可能为空)不包含"(",")"
 func (p *CompilationEngine) CompileParameterList() {
-
+	// TODO
 }
 
 // CompileVarDec 编译var声明
 func (p *CompilationEngine) CompileVarDec() {
-
+	// TODO
 }
 
 // CompileStatements 编译一系列语句，不包含大括号 "{", "}"
