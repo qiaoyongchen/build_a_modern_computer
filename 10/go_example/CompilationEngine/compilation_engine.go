@@ -162,7 +162,8 @@ func (p *CompilationEngine) CompileSubroutine() {
 	if p.jt.Symbol() != JackTokenizer.SYM_LEFT_BRACES {
 		panic("c_023")
 	}
-	p.CompileParameterList()
+
+	p.CompileParameterList() // (int a, string b)
 
 	p.jt.Advance()
 	if p.jt.HasMoreTokens() {
@@ -175,7 +176,9 @@ func (p *CompilationEngine) CompileSubroutine() {
 		panic("c_026")
 	}
 	p.o.WriteString(fmt.Sprintf("<subroutineBody>"))
+	p.o.WriteString(fmt.Sprintf("<symbol>%s</symbol>", p.jt.Symbol())) // {
 	p.CompileStatements()
+	p.o.WriteString(fmt.Sprintf("<symbol>%s</symbol>", p.jt.Symbol())) // }
 	p.o.WriteString(fmt.Sprintf("</subroutineBody>"))
 
 	p.o.WriteString(fmt.Sprintf("</subroutineDec>"))
@@ -183,7 +186,38 @@ func (p *CompilationEngine) CompileSubroutine() {
 
 // CompileParameterList 编译参数列表(可能为空)不包含"(",")"
 func (p *CompilationEngine) CompileParameterList() {
-	// TODO
+
+	lastFlag := 0 // 0 代表 "(", 1 代表 keyword( int / char ), 2 代表 identifier 3 代表 ","
+	for {
+		p.jt.Advance()
+		if p.jt.HasMoreTokens() {
+			panic("c_027")
+		}
+
+		switch p.jt.TokenType() {
+		case JackTokenizer.TKN_SYMBOL:
+			if lastFlag == 0 || lastFlag == 2 {
+				break
+			} else {
+				panic("c_031")
+			}
+		case JackTokenizer.TKN_KEYWORD:
+			if lastFlag != 0 && lastFlag != 3 {
+				panic("c_028")
+			}
+			p.o.WriteString(fmt.Sprintf("<keyword>%s</keyword>", p.jt.Keyword()))
+			continue
+		case JackTokenizer.TKN_IDENTIFIER:
+			if lastFlag != 1 {
+				panic("c_029")
+			}
+			if p.jt.Keyword() != JackTokenizer.KEY_INT && p.jt.Keyword() != JackTokenizer.KEY_CHAR {
+				panic("c_030")
+			}
+			p.o.WriteString(fmt.Sprintf("<identifier>%s</identifier>", p.jt.Identifierr()))
+			continue
+		}
+	}
 }
 
 // CompileVarDec 编译var声明
